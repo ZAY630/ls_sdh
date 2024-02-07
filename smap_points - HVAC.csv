@@ -1,0 +1,20 @@
+system,point name,units,uuid
+Chilled water pump,SDH.CHW1.CHP3_CT,Amps,5c17d862-cd36-550e-ac29-2624a186dea6
+Chilled water pump,SDH.CHW2.CHP4_CT,Amps,712cabd8-22b4-5787-86a8-0b2e4dd306cb
+Chilled water pump,SDH.CHW2.CHP5_CT,Amps,43e71321-490f-55d4-a410-18553dc1c71f
+Chilled water pump,SDH.SCHWP1_VFD:CURRENT,Amps,394e49f9-7e93-55c7-aa57-c158bb791084
+Chilled water pump,SDH.SCHWP2_VFD:CURRENT,Amps,413a90f9-7c54-501f-878f-9f2b82fd603a
+Chilled water pump,SDH.SCHWP1_VFD:POWER,kW,deab4780-e47e-5e30-81b0-fead57b98f7f
+Chilled water pump,SDH.SCHWP2_VFD:POWER,kW,a8a3274f-26a2-5a41-8bad-fcdebe6167ab
+Condenser wayer pump,SDH.CHW1.CWP2_CT,Amps,fda6f98a-9f98-5011-b0a8-24fb05501b03
+Condenser wayer pump,SDH.CHW1.CWP4_CT,Amps,b583fa79-8394-5cd4-9838-6a9279f00532
+Condenser wayer pump,SDH.CHW2.CWP5_CT,Amps,f7937fad-529d-5d97-940e-10afc9955b13
+Condenser wayer pump,SDH.CHW2.CWP6_CT,Amps,1155ad13-f24e-5733-9c40-7564cdc7504f
+Fan (Air handlers),SDH.AH1A.SF_VFD:CURRENT,Amps,4632a2d9-0a4b-5700-afe5-b4a2a2b4eaaa
+Fan (Air handlers),SDH.AH1B.SF_VFD:CURRENT,Amps,03b68e50-3dcb-505f-a9f9-709976989d40
+Fan (Air handlers),SDH.AH2A.RF_VFD:CURRENT,Amps,94f4b3e0-5c00-5009-998a-0fa1c770d582
+Fan (Air handlers),SDH.AH2B.SF_VFD:CURRENT,Amps,d06d4bda-e7ab-5754-be3f-3c33a44cdc3e
+Fan (Air handlers),SDH.AH1A.SF_VFD:POWER,%,a073ea2e-b74c-5201-ab51-90be1e8085ec
+Fan (Air handlers),SDH.AH1B.SF_VFD:POWER,%,300dc613-4abe-5e38-bec7-76ca04db707f
+Fan (Air handlers),SDH.AH2A.RF_VFD:POWER,%,1ae24e3e-e0b3-5a2e-ae5b-ec07e3ef5f60
+Fan (Air handlers),SDH.AH2B.SF_VFD:POWER,%,df86fd31-dc3c-51d1-851a-8fa5a45a647d
