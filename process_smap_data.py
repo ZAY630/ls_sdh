@@ -190,8 +190,8 @@ def create_daily_heatmap(df):
     df_pivot = df.pivot_table(index='date', columns='time', values=df.columns[1:], aggfunc='mean')
 
     # Create a heatmap
-    plt.figure(figsize=(15, 7))  # You may want to adjust the size depending on your actual data
-    sns.heatmap(df_pivot, cmap='viridis', linewidths=.5)
+    plt.figure(figsize=(15, 15))  # You may want to adjust the size depending on your actual data
+    sns.heatmap(df_pivot, cmap='viridis_r', linewidths=.5)
     
     # Rotate the x-axis labels for better readability
     plt.xticks(rotation=45, ha='right')
@@ -222,8 +222,8 @@ def plot_hourly_heatmap(df, columns):
     df = df.reset_index()
 
     # Plot heatmap
-    plt.figure(figsize=(18, 10))
-    heatmap = sns.heatmap(heatmap_data, cmap='viridis', linewidths=.5)
+    plt.figure(figsize=(15, 15))
+    heatmap = sns.heatmap(heatmap_data, cmap='viridis_r', linewidths=.5)
     heatmap.set_xticklabels(heatmap.get_xticklabels(), rotation=0)  # Ensures labels are not rotated
     hours = list(range(24))  # 0 to 23
     plt.xticks(np.arange(len(hours)) + .5, labels=hours)  # Adjust tick positions and labels
