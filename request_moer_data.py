@@ -37,7 +37,7 @@ def get_intervals(start = "2022-05-01", end = "2022-09-01"):
 
     return time_intervals
 
-def download(time_intervals, region = "CAISO_NORTH", signal_type = "co2_moer", historical = True):
+def download_raw(time_intervals, region = "CAISO_NORTH", signal_type = "co2_moer", historical = True):
     
     login_url = 'https://api.watttime.org/login'
     rsp = requests.get(login_url, auth=HTTPBasicAuth('aoyuzou', 'aoyuzou36!'))
@@ -66,7 +66,7 @@ def download(time_intervals, region = "CAISO_NORTH", signal_type = "co2_moer", h
             response.raise_for_status()
             moer.append(response)
     
-    with open('moer.csv', 'w', newline='') as csv_file:
+    with open('moer_raw.csv', 'w', newline='') as csv_file:
         fieldnames = moer[0].json()['data'][0].keys()
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         # Write the header
@@ -79,10 +79,9 @@ def download(time_intervals, region = "CAISO_NORTH", signal_type = "co2_moer", h
             for row in data:
                 writer.writerow(row)
 
-def get_moer(time_intervals, region = "CAISO_NORTH", signal_type = "co2_moer", historical = True):
+def moer_15(filename):
 
-    download(time_intervals, region = region, signal_type = signal_type, historical = True)
-    moer_df = pd.read_csv("moer.csv")
+    moer_df = pd.read_csv(filename)
     moer_df['datetime'] = pd.to_datetime(moer_df['point_time'])
     moer_df = moer_df.drop(columns='point_time')
     moer_df['moer'] = moer_df['value'] * 0.454
@@ -91,4 +90,16 @@ def get_moer(time_intervals, region = "CAISO_NORTH", signal_type = "co2_moer", h
     moer_df = moer_df.reset_index()
 
     return moer_df
+
+if __name__ == "__main__":
+
+    start = "2023-01-01"
+    end = "2024-01-01"
+
+    time_intervals = get_intervals(start, end)
+    download_raw(time_intervals, region = "CAISO_NORTH", signal_type = "co2_moer", historical = True)
+    moer_df = moer_15("moer_raw.csv")
+
+    # Save DataFrame to a CSV file
+    moer_df.to_csv("moer_15.csv", index=False)
     
