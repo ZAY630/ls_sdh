@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 
-def make_plot(df, names = [], date = ''):
+def make_plot(df, names = [], date = '', unit = '', plot_title = ''):
     df['datetime'] = pd.to_datetime(df.iloc[:, 0])
 
     if names == []:
@@ -17,35 +17,19 @@ def make_plot(df, names = [], date = ''):
     # Plotting each column against the 'datetime'
     for column in names:
         plt.plot(df['datetime'], df[column], label = column)
-        plt.title(f"{column}")
-        plt.xlabel('Datetime')
-        plt.ylabel('Value')
-        plt.legend()
 
+    plt.title(plot_title, fontsize = 18)
+    plt.legend()
+
+    # Add units to y-tick labels
+    ax = plt.gca()  # Get the current Axes instance
+    y_ticks = ax.get_yticks()  # Get the current y-tick values
+    ax.set_yticklabels([f'{y:.2f}{unit}' for y in y_ticks])
+    
     plt.show()
 
-def create_daily_heatmap(df):
-    # Pivot the DataFrame to get dates on one axis and times on another
-    df['date'] = df['datetime'].dt.date
-    df['time'] = df['datetime'].dt.time
-    df_pivot = df.pivot_table(index='date', columns='time', values=df.columns[1:], aggfunc='mean')
 
-    # Create a heatmap
-    plt.figure(figsize=(18, 20))  # You may want to adjust the size depending on your actual data
-    sns.heatmap(df_pivot, cmap='viridis_r', linewidths=.5)
-    
-    # Rotate the x-axis labels for better readability
-    plt.xticks(rotation=45, ha='right')
-    plt.yticks(rotation=0)
-    
-    plt.title('Daily Heatmap')
-    plt.tight_layout()  # Adjust layout to fit everything nicely
-    plt.show()
-
-    return plt
-
-def plot_hourly_heatmap(df, columns):
-    df['datetime'] = pd.to_datetime(df['datetime'])
+def plot_hourly_heatmap(df, columns, annotation=''):
     
     # Set datetime as the index
     df.set_index('datetime', inplace=True)
@@ -60,27 +44,42 @@ def plot_hourly_heatmap(df, columns):
                                            aggfunc='mean')
 
 
-    df = df.reset_index()
+    df.reset_index(inplace=True)
 
     # Plot heatmap
     plt.figure(figsize=(18, 20))
     heatmap = sns.heatmap(heatmap_data, cmap='viridis_r', linewidths=.5)
     heatmap.set_xticklabels(heatmap.get_xticklabels(), rotation=0)  # Ensures labels are not rotated
+
+    # Modify color bar label, adding units
+    color_bar = heatmap.collections[0].colorbar  # Get the colorbar instance of the heatmap
+    color_bar.set_label(annotation, rotation=270, labelpad=24, fontsize = 15)  # Set label with units
+    color_bar.ax.set_aspect(40)
+
+    # Get the current position of the color bar (returns [left, bottom, width, height])
+    cbar_pos = color_bar.ax.get_position()
+
+    # Modify the position parameters as needed (e.g., move closer by decreasing 'left')
+    # Here '0.05' is just an example value for how much you want to move it closer; adjust as necessary
+    new_pos = [cbar_pos.x0 - 0.025, cbar_pos.y0, cbar_pos.width, cbar_pos.height]
+
+    # Set the new position
+    color_bar.ax.set_position(new_pos)
+
     hours = list(range(24))  # 0 to 23
     plt.xticks(np.arange(len(hours)) + .5, labels=hours)  # Adjust tick positions and labels
-
-    plt.ylabel('Day')
-    plt.xlabel('Hour of the Day')
-    plt.title('Hourly Heatmap')
+    plt.xlabel('Hour of the Day', fontsize = 15)
+    plt.title('Hourly Heatmap', fontsize = 18)
 
     plt.show()
 
 
-def create_violin_plot(df, columns):
+def create_violin_plot(df, columns, unit, plot_title):
     # Create the violin plot
-    plt.figure(figsize=[20, 10])
-    ax = sns.violinplot(data=df[columns])
-    
+    plt.figure(figsize=[15, 10])
+    ax = sns.violinplot(data=df[columns], inner=None, linewidth=0, saturation=0.4)
+    sns.boxplot(data=df[columns], width=0.1, boxprops={'zorder': 2}, ax=ax, showfliers=False)
+
     # Calculate and print mean and median on the plot
     for i, col in enumerate(columns):
         # Calculate statistics
@@ -89,11 +88,14 @@ def create_violin_plot(df, columns):
         
         # Annotate the statistics on the plot
         # plt.text(i + 0.1, mean, f'Mean: {mean:.2f}', horizontalalignment='center', size='small', color='black', weight='semibold')
-        plt.text(i - 0.1, median, f'Median: {median:.2f}', horizontalalignment='center', size='small', color='black', weight='semibold')
+        plt.text(i - 0.25, median, f'Median: {median:.2f}{unit}', horizontalalignment='center', size='large', color='black', weight='bold')
     
     # Set the x and y labels
-    ax.set_xlabel('Column')
-    ax.set_ylabel('Values')
-    
+    ax = plt.gca()  # Get the current Axes instance
+    y_ticks = ax.get_yticks()  # Get the current y-tick values
+    ax.set_yticklabels([f'{y:.2f}{unit}' for y in y_ticks])
+    ax.set_title(plot_title, fontsize = 20)
+    plt.setp(ax.collections, alpha=.5)
+ 
     # Show the plot
     plt.show()
