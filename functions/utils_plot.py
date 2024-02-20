@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 
-def make_plot(df, names = [], date = '', unit = '', plot_title = ''):
+def make_plot(df, names = [], date = '', unit = '', plot_title = '', figsize = ()):
     df['datetime'] = pd.to_datetime(df.iloc[:, 0])
 
     if names == []:
@@ -12,7 +12,7 @@ def make_plot(df, names = [], date = '', unit = '', plot_title = ''):
     if date != '':
         df = df[df['datetime'].dt.date == pd.to_datetime(date)]
 
-    plt.figure(figsize=(20, 10))
+    plt.figure(figsize=figsize)
 
     # Plotting each column against the 'datetime'
     for column in names:
@@ -29,7 +29,7 @@ def make_plot(df, names = [], date = '', unit = '', plot_title = ''):
     plt.show()
 
 
-def plot_hourly_heatmap(df, columns, annotation=''):
+def plot_hourly_heatmap(df, columns, annotation='', figsize = ()):
     
     # Set datetime as the index
     df.set_index('datetime', inplace=True)
@@ -47,7 +47,7 @@ def plot_hourly_heatmap(df, columns, annotation=''):
     df.reset_index(inplace=True)
 
     # Plot heatmap
-    plt.figure(figsize=(18, 20))
+    plt.figure(figsize=figsize)
     heatmap = sns.heatmap(heatmap_data, cmap='viridis_r', linewidths=.5)
     heatmap.set_xticklabels(heatmap.get_xticklabels(), rotation=0)  # Ensures labels are not rotated
 
@@ -74,9 +74,9 @@ def plot_hourly_heatmap(df, columns, annotation=''):
     plt.show()
 
 
-def create_violin_plot(df, columns, unit, plot_title):
+def create_violin_plot(df, columns, unit, plot_title, figsize = ()):
     # Create the violin plot
-    plt.figure(figsize=[15, 10])
+    plt.figure(figsize=figsize)
     ax = sns.violinplot(data=df[columns], inner=None, linewidth=0, saturation=0.4)
     sns.boxplot(data=df[columns], width=0.1, boxprops={'zorder': 2}, ax=ax, showfliers=False)
 
