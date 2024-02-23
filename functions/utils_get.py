@@ -1,4 +1,8 @@
 
+import numpy as np
+import pandas as pd
+import glob
+
 def get_pump(df, loop = "CHW"):
 
     if loop == "CHW":
@@ -157,3 +161,75 @@ def get_substation(df, keyword = 'MSA.'):
 
     df_substation = sub_dataframes[keyword]
     return df_substation
+
+# Define the function to process a single CSV file
+def read_grid_demand(filepath):
+
+    df = pd.read_csv(filepath)
+    df = df[df['TAC_AREA_NAME'] == 'CA ISO-TAC']
+    df = df[['INTERVALSTARTTIME_GMT', 'MW']]
+    df['datetime'] = pd.to_datetime(df['INTERVALSTARTTIME_GMT'])
+    df['datetime'] = df['datetime'].dt.tz_convert('America/Los_Angeles')
+    df.drop(columns='INTERVALSTARTTIME_GMT', inplace=True)
+    df.sort_values(by='datetime', inplace=True)
+    return df
+
+def get_grid_demand(filepaths):
+    # Get all CSV file paths from the folder
+
+    filepaths = glob.glob(filepaths)
+
+    # Process each CSV file and collect the DataFrames
+    dfs = [read_grid_demand(filepath) for filepath in filepaths]
+
+    # Combine all DataFrames vertically
+    combined_df = pd.concat(dfs, ignore_index=True)
+
+    # Sort the combined DataFrame by datetime just in case
+    combined_df.sort_values(by='datetime', inplace=True)
+
+    # If you want to reset the index of the combined DataFrame
+    combined_df.reset_index(drop=True, inplace=True)
+
+    # Now combined_df is ready for use
+    combined_df.set_index('datetime', inplace=True)
+    combined_df.reset_index(inplace=True)
+    combined_df.columns = ['datetime', 'demand']
+
+    return combined_df
+
+# Define the function to process a single CSV file
+def read_grid_renew(filepath, type):
+
+    df = pd.read_csv(filepath)
+    df = df[['INTERVALSTARTTIME_GMT', 'RENEWABLE_TYPE', 'MW']]
+    df = df[df['RENEWABLE_TYPE'] == type]
+    df['datetime'] = pd.to_datetime(df['INTERVALSTARTTIME_GMT'])
+    df['datetime'] = df['datetime'].dt.tz_convert('America/Los_Angeles')
+    df.drop(columns=['INTERVALSTARTTIME_GMT', 'RENEWABLE_TYPE'], inplace=True)
+    df.sort_values(by='datetime', inplace=True)
+    return df
+
+def get_grid_renew(filepaths, type):
+    # Get all CSV file paths from the folder
+
+    filepaths = glob.glob(filepaths)
+
+    # Process each CSV file and collect the DataFrames
+    dfs = [read_grid_renew(filepath, type) for filepath in filepaths]
+
+    # Combine all DataFrames vertically
+    combined_df = pd.concat(dfs, ignore_index=True)
+
+    # Sort the combined DataFrame by datetime just in case
+    combined_df.sort_values(by='datetime', inplace=True)
+
+    # If you want to reset the index of the combined DataFrame
+    combined_df.reset_index(drop=True, inplace=True)
+
+    # Now combined_df is ready for use
+    combined_df.set_index('datetime', inplace=True)
+    combined_df.reset_index(inplace=True)
+    combined_df.columns = ['datetime', type]
+
+    return combined_df
