@@ -233,3 +233,10 @@ def get_grid_renew(filepaths, type):
     combined_df.columns = ['datetime', type]
 
     return combined_df
+
+def process_group(group):
+    # Check if all values in the group are NaN
+    if group.isnull().all().all():  # checks all columns; use group['values'].isnull().all() for a specific column
+        return None  # Return None if there are no valid entries for the entire day
+    else:
+        return group.interpolate(method='linear')  # Interpolate missing values for the day

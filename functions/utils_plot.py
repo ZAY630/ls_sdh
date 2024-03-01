@@ -74,22 +74,22 @@ def plot_hourly_heatmap(df, columns, annotation='', figsize = ()):
     plt.show()
 
 
-def create_violin_plot(df, columns, unit, plot_title, figsize = ()):
+def create_violin_plot(df, columns, unit, plot_title, figsize = (), annotation = True):
     # Create the violin plot
     plt.figure(figsize=figsize)
     ax = sns.violinplot(data=df[columns], inner=None, linewidth=0, saturation=0.4)
     sns.boxplot(data=df[columns], width=0.1, boxprops={'zorder': 2}, ax=ax, showfliers=False)
 
     # Calculate and print mean and median on the plot
-    for i, col in enumerate(columns):
-        # Calculate statistics
-        mean = df[col].mean()
-        median = df[col].median()
-        
-        # Annotate the statistics on the plot
-        # plt.text(i + 0.1, mean, f'Mean: {mean:.2f}', horizontalalignment='center', size='small', color='black', weight='semibold')
-        plt.text(i - 0.25, median, f'Median: {median:.2f}{unit}', horizontalalignment='center', size='large', color='black', weight='bold')
-    
+    if annotation == True:
+        for i, col in enumerate(columns):
+            # Calculate statistics
+            mean = df[col].mean()
+            median = df[col].median()
+            
+            # Annotate the statistics on the plot
+            # plt.text(i + 0.1, mean, f'Mean: {mean:.2f}', horizontalalignment='center', size='small', color='black', weight='semibold')
+            plt.text(i + 0.15, median, f'{median:.0f}{unit}', horizontalalignment='center', size='large', color='black', weight='bold')
     # Set the x and y labels
     ax = plt.gca()  # Get the current Axes instance
     y_ticks = ax.get_yticks()  # Get the current y-tick values
