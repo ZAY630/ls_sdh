@@ -47,7 +47,7 @@ if __name__ == "__main__":
 
     start = dtutil.dt2ts(dtutil.strptime_tz("2023-01-01", "%Y-%m-%d"))
     end = dtutil.dt2ts(dtutil.strptime_tz("2024-01-01", "%Y-%m-%d"))
-    query_type = "sat"
+    query_type = "afr"
     g = brickschema.Graph()
     g.load_file('2022_sdh_brick_expanded.ttl')
     url = "http://178.128.64.40:8079"
@@ -88,6 +88,22 @@ if __name__ == "__main__":
             ?bacnet_net     sdh:connstring                  ?bacnet_addr .
         }"""
         )
+
+    elif query_type == "afr":
+
+        query = g.query(
+            """SELECT DISTINCT ?ahu ?sensor ?bacnet_id ?bacnet_instance WHERE {
+            ?ahu            rdf:type                        brick:AHU .
+            ?sensor         rdf:type/rdfs:subClassOf*       brick:Supply_Air_Flow_Sensor .
+            ?ahu            brick:hasPoint                  ?sensor .
+            ?sensor         brick:bacnetPoint               ?bacnet_id .
+            ?bacnet_id      brick:hasBacnetDeviceInstance   ?bacnet_instance .
+            ?bacnet_id      brick:hasBacnetDeviceType       ?bacnet_type .
+            ?bacnet_id      brick:accessedAt                ?bacnet_net .
+            ?bacnet_net     sdh:connstring                  ?bacnet_addr .
+        }"""
+        )
+    
 
     print("Return {} queries".format(len(query)))
     df = pd.DataFrame(query, columns=[str(s) for s in query.vars])

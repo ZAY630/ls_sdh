@@ -110,8 +110,8 @@ get_historical_weather = function(latlongs,
       
       # read rds and select columns
       df_weather_new <- read_rds(file = file) %>%
-        select(code, date, air_temp, RH, ws) %>%
-        rename("t_out" = "air_temp", "rh_out" = "RH", "wind_s" = "ws")
+        select(code, date, air_temp, RH, dew_point, ws) %>%
+        rename("t_out" = "air_temp", "rh_out" = "RH", "dew_point" = "dew_point", "wind_s" = "ws")
       
       # combine into one table
       if (exists("df_weather")) {
@@ -146,8 +146,8 @@ get_historical_weather = function(latlongs,
 
 # examples for New York, Berkeley, and Hawaii
 
-latlongs = data.frame(lat =c(37.871666), 
-                      long =c(-122.272781))
+latlongs = data.frame(lat =c(37.9780), 
+                      long =c(-122.0311))
 # or read in from a csv
 # latlongs = read_csv("./XYZ.csv", col_types = "dd")
 
