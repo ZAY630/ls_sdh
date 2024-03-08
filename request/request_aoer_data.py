@@ -40,7 +40,7 @@ def get_intervals(start = "2022-05-01", end = "2022-09-01"):
 def download_raw(time_intervals, region = "CAISO", signal_type = "co2_aoer", historical = True):
     
     login_url = 'https://api.watttime.org/login'
-    rsp = requests.get(login_url, auth=HTTPBasicAuth('aoyuzou', 'aoyuzou36!'))
+    rsp = requests.get(login_url, auth=HTTPBasicAuth('aoyuzou36', 'aoyuzou36!'))
     TOKEN = rsp.json()['token']
     print(rsp.json())
 
@@ -51,7 +51,7 @@ def download_raw(time_intervals, region = "CAISO", signal_type = "co2_aoer", his
 
         url = "https://api.watttime.org/v3/historical"
 
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         
         # Provide your TOKEN here, see https://docs.watttime.org/#tag/Authentication/operation/get_token_login_get for more information
         headers = {"Authorization": f"Bearer {TOKEN}"}
