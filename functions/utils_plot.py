@@ -31,6 +31,9 @@ def make_plot(df, names = [], date = '', unit = '', plot_title = '', figsize = (
 
 def plot_hourly_heatmap(df, columns, annotation='', figsize = ()):
     
+   # Ensure datetime is the correct type for processing
+    df['datetime'] = pd.to_datetime(df['datetime'])  # Convert if not already in datetime format
+    
     # Set datetime as the index
     df.set_index('datetime', inplace=True)
     
@@ -43,42 +46,42 @@ def plot_hourly_heatmap(df, columns, annotation='', figsize = ()):
                                            values=columns, 
                                            aggfunc='mean')
 
-
-    df.reset_index(inplace=True)
-
     # Plot heatmap
     plt.figure(figsize=figsize)
-    heatmap = sns.heatmap(heatmap_data, cmap='viridis_r', linewidths=.5)
-    heatmap.set_xticklabels(heatmap.get_xticklabels(), rotation=0)  # Ensures labels are not rotated
+    heatmap = sns.heatmap(heatmap_data, cmap='viridis_r', linewidths=0)
 
     # Modify color bar label, adding units
-    color_bar = heatmap.collections[0].colorbar  # Get the colorbar instance of the heatmap
-    color_bar.set_label(annotation, rotation=270, labelpad=24, fontsize = 15)  # Set label with units
+    color_bar = heatmap.collections[0].colorbar
+    color_bar.set_label(annotation, rotation=270, labelpad=24, fontsize=15)
     color_bar.ax.set_aspect(40)
 
-    # Get the current position of the color bar (returns [left, bottom, width, height])
-    cbar_pos = color_bar.ax.get_position()
+    # Identify the positions and labels for the first day of each month
+    first_days = pd.date_range(start=heatmap_data.index.min(), 
+                               end=heatmap_data.index.max(), 
+                               freq='MS').date  # 'MS' means month start
+    first_days_positions = [i for i, date in enumerate(heatmap_data.index) if date in first_days]
+    first_days_labels = [date.strftime('%Y-%m-%d') for date in first_days if date in heatmap_data.index]
 
-    # Modify the position parameters as needed (e.g., move closer by decreasing 'left')
-    # Here '0.05' is just an example value for how much you want to move it closer; adjust as necessary
-    new_pos = [cbar_pos.x0 - 0.025, cbar_pos.y0, cbar_pos.width, cbar_pos.height]
+    # Set y-tick positions and labels for the first day of each month
+    heatmap.set_yticks(np.array(first_days_positions) + 0.5)  # +0.5 centers labels
+    heatmap.set_yticklabels(first_days_labels, rotation=0)  # Set labels with no rotation
+    heatmap.set_xticklabels(heatmap.get_xticklabels(), rotation=0)  # Ensures labels are not rotated
 
-    # Set the new position
-    color_bar.ax.set_position(new_pos)
-
+    # Set additional labels and titles
     hours = list(range(24))  # 0 to 23
-    plt.xticks(np.arange(len(hours)) + .5, labels=hours)  # Adjust tick positions and labels
-    plt.xlabel('Hour of the Day', fontsize = 15)
-    plt.title('Hourly Heatmap', fontsize = 18)
+    plt.xticks(np.arange(len(hours)) + 0.5, labels=hours)  # Adjust tick positions and labels
+    plt.xlabel('Hour of the Day', fontsize=15)
+    plt.title('Hourly Heatmap', fontsize=18)
 
     plt.show()
+    df.reset_index(inplace = True)
 
 
-def create_violin_plot(df, columns, unit, plot_title, figsize = (), annotation = True):
+def create_violin_plot(df, columns, unit, axe, plot_title='', annotation = True, hide_xticks = False, xlabel = '', ylim = []):
     # Create the violin plot
-    plt.figure(figsize=figsize)
-    ax = sns.violinplot(data=df[columns], inner=None, linewidth=0, saturation=0.4)
-    sns.boxplot(data=df[columns], width=0.1, boxprops={'zorder': 2}, ax=ax, showfliers=False)
+    # plt.figure(figsize=figsize)
+    sns.violinplot(data=df[columns], ax=axe, inner=None, width=0.4, linewidth=0, saturation=0.4)
+    sns.boxplot(data=df[columns], width=0.1, boxprops={'zorder': 2}, ax=axe, showfliers=False)
 
     # Calculate and print mean and median on the plot
     if annotation == True:
@@ -89,13 +92,21 @@ def create_violin_plot(df, columns, unit, plot_title, figsize = (), annotation =
             
             # Annotate the statistics on the plot
             # plt.text(i + 0.1, mean, f'Mean: {mean:.2f}', horizontalalignment='center', size='small', color='black', weight='semibold')
-            plt.text(i + 0.15, median, f'{median:.0f}{unit}', horizontalalignment='center', size='large', color='black', weight='bold')
+            axe.text(i + 0.1, median, f'{median:.0f}{unit}', horizontalalignment='left', size='large', color='black', weight='bold', fontsize = 14)
     # Set the x and y labels
-    ax = plt.gca()  # Get the current Axes instance
-    y_ticks = ax.get_yticks()  # Get the current y-tick values
-    ax.set_yticklabels([f'{y:.2f}{unit}' for y in y_ticks])
-    ax.set_title(plot_title, fontsize = 20)
-    plt.setp(ax.collections, alpha=.5)
- 
-    # Show the plot
-    plt.show()
+    # ax = plt.gca()  # Get the current Axes instance
+    y_ticks = axe.get_yticks()  # Get the current y-tick values
+    axe.set_yticklabels([f'{y:.2f}{unit}' for y in y_ticks])
+    axe.set_title(plot_title, fontsize = 16)
+    if hide_xticks:
+        axe.set_xticklabels([])
+    axe.set_xlabel(xlabel, fontsize = 16)
+    axe.tick_params(axis='both', labelsize=14)
+    axe.spines['top'].set_visible(False)
+    axe.spines['right'].set_visible(False)
+    axe.spines['left'].set_visible(False)
+    axe.spines['bottom'].set_visible(False)
+    if ylim:
+        axe.set_ylim(ylim[0], ylim[1])
+    plt.setp(axe.collections, alpha=.5)
+    

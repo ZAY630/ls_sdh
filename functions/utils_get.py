@@ -202,11 +202,11 @@ def get_grid_demand(filepaths):
 def read_grid_renew(filepath, type):
 
     df = pd.read_csv(filepath)
-    df = df[['INTERVALSTARTTIME_GMT', 'RENEWABLE_TYPE', 'MW']]
-    df = df[df['RENEWABLE_TYPE'] == type]
+    df = df[['INTERVALSTARTTIME_GMT', 'RENEWABLE_TYPE', 'TRADING_HUB', 'MW']]
+    df = df[(df['RENEWABLE_TYPE'] == type) & (df['TRADING_HUB'] == 'NP15')]
     df['datetime'] = pd.to_datetime(df['INTERVALSTARTTIME_GMT'])
     df['datetime'] = df['datetime'].dt.tz_convert('America/Los_Angeles')
-    df.drop(columns=['INTERVALSTARTTIME_GMT', 'RENEWABLE_TYPE'], inplace=True)
+    df.drop(columns=['INTERVALSTARTTIME_GMT', 'RENEWABLE_TYPE', 'TRADING_HUB'], inplace=True)
     df.sort_values(by='datetime', inplace=True)
     return df
 
