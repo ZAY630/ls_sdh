@@ -95,6 +95,9 @@ def create_violin_plot(df, columns, unit, axe, plot_title='', annotation = True,
             axe.text(i + 0.1, median, f'{median:.0f}{unit}', horizontalalignment='left', size='large', color='black', weight='bold', fontsize = 14)
     # Set the x and y labels
     # ax = plt.gca()  # Get the current Axes instance
+    if ylim:
+        axe.set_ylim(ylim[0], ylim[1])
+
     y_ticks = axe.get_yticks()  # Get the current y-tick values
     axe.set_yticklabels([f'{y:.2f}{unit}' for y in y_ticks])
     axe.set_title(plot_title, fontsize = 16)
@@ -106,7 +109,5 @@ def create_violin_plot(df, columns, unit, axe, plot_title='', annotation = True,
     axe.spines['right'].set_visible(False)
     axe.spines['left'].set_visible(False)
     axe.spines['bottom'].set_visible(False)
-    if ylim:
-        axe.set_ylim(ylim[0], ylim[1])
     plt.setp(axe.collections, alpha=.5)
     
