@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import seaborn as sns
+import matplotlib.colors as mcolors
 
 def make_plot(df, names = [], date = '', unit = '', plot_title = '', figsize = ()):
     df['datetime'] = pd.to_datetime(df.iloc[:, 0])
@@ -29,7 +30,7 @@ def make_plot(df, names = [], date = '', unit = '', plot_title = '', figsize = (
     plt.show()
 
 
-def plot_hourly_heatmap(df, columns, annotation='', figsize = ()):
+def plot_hourly_heatmap(df, columns, annotation='', plot_title = '', cbar_ticks = [], cbar_label = [], figsize = ()):
     
    # Ensure datetime is the correct type for processing
     df['datetime'] = pd.to_datetime(df['datetime'])  # Convert if not already in datetime format
@@ -48,58 +49,79 @@ def plot_hourly_heatmap(df, columns, annotation='', figsize = ()):
 
     # Plot heatmap
     plt.figure(figsize=figsize)
-    heatmap = sns.heatmap(heatmap_data, cmap='viridis_r', linewidths=0)
+    heatmap = sns.heatmap(heatmap_data, cmap='viridis_r', linewidths=0, cbar_kws={'orientation': 'horizontal', 'pad': 0.1})
 
     # Modify color bar label, adding units
-    color_bar = heatmap.collections[0].colorbar
-    color_bar.set_label(annotation, rotation=270, labelpad=24, fontsize=15)
-    color_bar.ax.set_aspect(40)
+    cbar = heatmap.collections[0].colorbar
+    cbar.set_label(annotation, labelpad=-80, fontsize=16)
+    cbar.ax.tick_params(labelsize=14)
+    if cbar_ticks:
+        cbar.set_ticks(cbar_ticks) 
+        cbar.set_ticklabels(cbar_label) 
 
     # Identify the positions and labels for the first day of each month
-    first_days = pd.date_range(start=heatmap_data.index.min(), 
-                               end=heatmap_data.index.max(), 
-                               freq='MS').date  # 'MS' means month start
-    first_days_positions = [i for i, date in enumerate(heatmap_data.index) if date in first_days]
-    first_days_labels = [date.strftime('%Y-%m-%d') for date in first_days if date in heatmap_data.index]
+    month_positions = []
+    month_labels = []
+    for i, date_str in enumerate(heatmap_data.index):
+        date = pd.to_datetime(date_str)
+        if date.day == 1:  # Check if it's the first day of the month
+            month_positions.append(i)
+            month_labels.append(date.strftime('%b'))
 
     # Set y-tick positions and labels for the first day of each month
-    heatmap.set_yticks(np.array(first_days_positions) + 0.5)  # +0.5 centers labels
-    heatmap.set_yticklabels(first_days_labels, rotation=0)  # Set labels with no rotation
-    heatmap.set_xticklabels(heatmap.get_xticklabels(), rotation=0)  # Ensures labels are not rotated
+    heatmap.set_yticks(np.array(month_positions) + 0.5)  # +0.5 centers labels
+    heatmap.set_yticklabels(month_labels, rotation=0)  # Set labels with no rotation
 
     # Set additional labels and titles
-    hours = list(range(24))  # 0 to 23
-    plt.xticks(np.arange(len(hours)) + 0.5, labels=hours)  # Adjust tick positions and labels
-    plt.xlabel('Hour of the Day', fontsize=15)
-    plt.title('Hourly Heatmap', fontsize=18)
-
+    hours = ['12 AM', '3 AM', '6 AM', '9 AM', '12 PM', '3 PM', '6 PM', '9 PM']
+    hour_positions = [0, 3, 6, 9, 12, 15, 18, 21]  # Corresponding positions in 24-hour format
+    plt.xticks(hour_positions, labels=hours, rotation = 0)  # Adjust tick positions and labels
+    plt.title(plot_title, fontsize=18)
+    plt.xticks(fontsize=14)
+    plt.yticks(fontsize=14)
+    plt.xlabel(xlabel=None)
     plt.show()
     df.reset_index(inplace = True)
 
 
-def create_violin_plot(df, columns, unit, axe, plot_title='', annotation = True, hide_xticks = False, xlabel = '', ylim = []):
-    # Create the violin plot
-    # plt.figure(figsize=figsize)
-    sns.violinplot(data=df[columns], ax=axe, inner=None, width=0.4, linewidth=0, saturation=0.4)
-    sns.boxplot(data=df[columns], width=0.1, boxprops={'zorder': 2}, ax=axe, showfliers=False)
+def create_box_plot(df, columns, unit, axe, plot_title='', annotation = True, hide_xticks = False, xlabel = '', ylim = [], type = False):
 
     # Calculate and print mean and median on the plot
     if annotation == True:
-        for i, col in enumerate(columns):
-            # Calculate statistics
-            mean = df[col].mean()
-            median = df[col].median()
-            
-            # Annotate the statistics on the plot
-            # plt.text(i + 0.1, mean, f'Mean: {mean:.2f}', horizontalalignment='center', size='small', color='black', weight='semibold')
-            axe.text(i + 0.1, median, f'{median:.0f}{unit}', horizontalalignment='left', size='large', color='black', weight='bold', fontsize = 14)
-    # Set the x and y labels
-    # ax = plt.gca()  # Get the current Axes instance
+        if type:
+            medians = df.groupby([columns + ['type']])[columns].median().reset_index()
+            for _, row in medians.iterrows():
+                # Adjust the text position (x, y) and alignment as necessary
+                axe.text(row['hour'] - 0.15 if row['type'] == 'high' else row['hour'] + 0.15, 
+                        median * 1.01, 
+                        f'{median:.0f}{unit}', 
+                        horizontalalignment='center', size='large', color='black', weight='bold', fontsize = 14)
+
+        else:
+            for i, col in enumerate(columns):
+                # Calculate statistics
+                mean = df[col].mean()
+                median = df[col].median()   
+                
+                # Annotate the statistics on the plot
+                axe.text(i, median * 1.025, f'{median:.0f}{unit}', horizontalalignment='center', size='large', color='black', weight='bold', fontsize = 14)
+
+
+    # Map median values to colors
+    if type:
+        sns.boxplot(x='hour', y=columns[0], hue=type, data=df, width=0.75, ax=axe, showfliers=False, palette=['#addd8e', '#d95f0e'])
+        plt.legend(fontsize='14', loc='lower right')
+    else:
+        sns.boxplot(data=df[columns], width=0.5, ax=axe, showfliers=False, color="#a6bddb")
+
+    
+
     if ylim:
         axe.set_ylim(ylim[0], ylim[1])
 
     y_ticks = axe.get_yticks()  # Get the current y-tick values
     axe.set_yticklabels([f'{y:.2f}{unit}' for y in y_ticks])
+    axe.set_ylabel(None)
     axe.set_title(plot_title, fontsize = 16)
     if hide_xticks:
         axe.set_xticklabels([])
