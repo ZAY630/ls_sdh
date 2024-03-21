@@ -2,9 +2,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import seaborn as sns
-import matplotlib.colors as mcolors
+from matplotlib.ticker import MaxNLocator
 
-def make_plot(df, names = [], date = '', unit = '', plot_title = '', figsize = ()):
+def make_plot(df, names = [], date = '', unit = '', yrange = [], plot_title = '', figsize = ()):
     df['datetime'] = pd.to_datetime(df.iloc[:, 0])
 
     if names == []:
@@ -23,9 +23,14 @@ def make_plot(df, names = [], date = '', unit = '', plot_title = '', figsize = (
     plt.legend()
 
     # Add units to y-tick labels
-    ax = plt.gca()  # Get the current Axes instance
-    y_ticks = ax.get_yticks()  # Get the current y-tick values
-    ax.set_yticklabels([f'{y:.2f}{unit}' for y in y_ticks])
+    new_ticks = np.arange(yrange[0], yrange[1] + 1, yrange[2])  # Adjust the step value as needed
+
+    # Set the new ticks
+    plt.gca().set_yticks(new_ticks)
+
+    # Format tick labels to show only the integer part and add "units" to the last label
+    tick_labels = [f"{int(tick)}" for tick in new_ticks[:-1]] + [f"{int(new_ticks[-1])}{unit}"]
+    plt.gca().set_yticklabels(tick_labels)
     
     plt.show()
 
@@ -84,7 +89,7 @@ def plot_hourly_heatmap(df, columns, annotation='', plot_title = '', cbar_ticks 
     df.reset_index(inplace = True)
 
 
-def create_box_plot(df, columns, unit, axe, plot_title='', annotation = True, hide_xticks = False, xlabel = '', ylim = [], type = False):
+def create_box_plot(df, columns, unit, axe, plot_title='', annotation = True, hide_xticks = False, xlabel = '', yrange = [], type = False):
 
     # Calculate and print mean and median on the plot
     if annotation == True:
@@ -114,19 +119,21 @@ def create_box_plot(df, columns, unit, axe, plot_title='', annotation = True, hi
     else:
         sns.boxplot(data=df[columns], width=0.5, ax=axe, showfliers=False, color="#a6bddb")
 
-    
 
-    if ylim:
-        axe.set_ylim(ylim[0], ylim[1])
+    axe.set_ylim(yrange[0], yrange[1])
+    new_ticks = np.arange(yrange[0], yrange[1] + 1, yrange[2])  # Generate 4 evenly spaced ticks within the current range
+    axe.set_yticks(new_ticks)
 
-    y_ticks = axe.get_yticks()  # Get the current y-tick values
-    axe.set_yticklabels([f'{y:.2f}{unit}' for y in y_ticks])
+    # Change tick labels to show only the integer part
+    tick_labels = [f"{int(tick)}" for tick in new_ticks[:-1]] + [f"{int(new_ticks[-1])}{unit}"]  # Convert to integer and add "units" to the last label
+    axe.set_yticklabels(tick_labels)
     axe.set_ylabel(None)
     axe.set_title(plot_title, fontsize = 16)
     if hide_xticks:
         axe.set_xticklabels([])
     axe.set_xlabel(xlabel, fontsize = 16)
     axe.tick_params(axis='both', labelsize=14)
+
     axe.spines['top'].set_visible(False)
     axe.spines['right'].set_visible(False)
     axe.spines['left'].set_visible(False)
