@@ -19,7 +19,7 @@ def make_plot(df, names = [], date = '', unit = '', yrange = [], plot_title = ''
     for column in names:
         plt.plot(df['datetime'], df[column], label = column)
 
-    plt.title(plot_title, fontsize = 18)
+    plt.title(plot_title, fontsize = 20)
     plt.legend()
 
     # Add units to y-tick labels
@@ -31,6 +31,7 @@ def make_plot(df, names = [], date = '', unit = '', yrange = [], plot_title = ''
     # Format tick labels to show only the integer part and add "units" to the last label
     tick_labels = [f"{int(tick)}" for tick in new_ticks[:-1]] + [f"{int(new_ticks[-1])}{unit}"]
     plt.gca().set_yticklabels(tick_labels)
+    plt.gca().tick_params(axis='both', labelsize=18)
     
     plt.show()
 
@@ -81,9 +82,9 @@ def plot_hourly_heatmap(df, columns, annotation='', plot_title = '', cbar_ticks 
     hours = ['12 AM', '3 AM', '6 AM', '9 AM', '12 PM', '3 PM', '6 PM', '9 PM']
     hour_positions = [0, 3, 6, 9, 12, 15, 18, 21]  # Corresponding positions in 24-hour format
     plt.xticks(hour_positions, labels=hours, rotation = 0)  # Adjust tick positions and labels
-    plt.title(plot_title, fontsize=18)
-    plt.xticks(fontsize=14)
-    plt.yticks(fontsize=14)
+    plt.title(plot_title, fontsize=20)
+    plt.xticks(fontsize=16)
+    plt.yticks(fontsize=16)
     plt.xlabel(xlabel=None)
     plt.show()
     df.reset_index(inplace = True)
@@ -114,8 +115,8 @@ def create_box_plot(df, columns, unit, axe, plot_title='', annotation = True, hi
 
     # Map median values to colors
     if type:
-        sns.boxplot(x='hour', y=columns[0], hue=type, data=df, width=0.75, ax=axe, showfliers=False, palette=['#addd8e', '#d95f0e'])
-        plt.legend(fontsize='14', loc='lower right')
+        sns.boxplot(x='hour', y=columns[0], hue=type, data=df, width=0.75, ax=axe, showfliers=False, palette=['#a8ddb5', '#fe9929'])
+        plt.legend(fontsize='18', loc='lower right')
     else:
         sns.boxplot(data=df[columns], width=0.5, ax=axe, showfliers=False, color="#a6bddb")
 
@@ -128,15 +129,39 @@ def create_box_plot(df, columns, unit, axe, plot_title='', annotation = True, hi
     tick_labels = [f"{int(tick)}" for tick in new_ticks[:-1]] + [f"{int(new_ticks[-1])}{unit}"]  # Convert to integer and add "units" to the last label
     axe.set_yticklabels(tick_labels)
     axe.set_ylabel(None)
-    axe.set_title(plot_title, fontsize = 16)
+    axe.set_title(plot_title, fontsize = 22)
     if hide_xticks:
         axe.set_xticklabels([])
-    axe.set_xlabel(xlabel, fontsize = 16)
-    axe.tick_params(axis='both', labelsize=14)
+    axe.set_xlabel(xlabel, fontsize = 20)
+    axe.tick_params(axis='both', labelsize=20)
 
     axe.spines['top'].set_visible(False)
     axe.spines['right'].set_visible(False)
     axe.spines['left'].set_visible(False)
     axe.spines['bottom'].set_visible(False)
     plt.setp(axe.collections, alpha=.5)
-    
+
+def create_bar_plot(df, columns, unit, plot_title='', annotation = True, xlabel = '', yrange = [], figsize = ()):
+    plt.figure(figsize=figsize)
+    df.plot(kind='bar')
+
+    # Add units to y-tick labels
+    new_ticks = np.arange(yrange[0], yrange[1], yrange[2])  # Adjust the step value as needed
+    plt.gca().set_yticks(new_ticks)
+    tick_labels = [f"{int(tick)}" for tick in new_ticks[:-1]] + [f"{int(new_ticks[-1])}{unit}"]
+    plt.gca().set_yticklabels(tick_labels)
+    plt.gca().tick_params(axis='both', labelsize=16)
+    plt.xticks(rotation = 0)
+    plt.xlabel(xlabel)
+    plt.title(plot_title, fontsize = 18)
+    if annotation:
+        for i, col in enumerate(columns):
+                anno = df[col] 
+                
+                # Annotate the statistics on the plot
+                plt.text(i, anno * 1.025, f'{anno:.0f}{unit}', horizontalalignment='center', size='large', color='black', fontsize = 14)
+    plt.gca().spines['top'].set_visible(False)
+    plt.gca().spines['right'].set_visible(False)
+    plt.gca().spines['left'].set_visible(False)
+    plt.gca().spines['bottom'].set_visible(False)
+    plt.show()
