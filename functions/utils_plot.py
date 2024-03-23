@@ -133,7 +133,8 @@ def create_box_plot(df, columns, unit, axe, plot_title='', annotation = True, hi
     if hide_xticks:
         axe.set_xticklabels([])
     axe.set_xlabel(xlabel, fontsize = 20)
-    axe.tick_params(axis='both', labelsize=20)
+    axe.tick_params(axis='y', which = 'major', length=10, width=2, labelsize=20)
+    axe.tick_params(axis='x', labelsize=20)
 
     axe.spines['top'].set_visible(False)
     axe.spines['right'].set_visible(False)
@@ -141,27 +142,76 @@ def create_box_plot(df, columns, unit, axe, plot_title='', annotation = True, hi
     axe.spines['bottom'].set_visible(False)
     plt.setp(axe.collections, alpha=.5)
 
-def create_bar_plot(df, columns, unit, plot_title='', annotation = True, xlabel = '', yrange = [], figsize = ()):
-    plt.figure(figsize=figsize)
-    df.plot(kind='bar')
+def create_bar_plot(df, columns, unit, plot_title='', annotation = True, xlabel = '', yrange = [], dual_columns = [], dual_unit = '', figsize = (), conversion_factor = 1):
 
-    # Add units to y-tick labels
-    new_ticks = np.arange(yrange[0], yrange[1], yrange[2])  # Adjust the step value as needed
-    plt.gca().set_yticks(new_ticks)
-    tick_labels = [f"{int(tick)}" for tick in new_ticks[:-1]] + [f"{int(new_ticks[-1])}{unit}"]
-    plt.gca().set_yticklabels(tick_labels)
-    plt.gca().tick_params(axis='both', labelsize=16)
-    plt.xticks(rotation = 0)
-    plt.xlabel(xlabel)
-    plt.title(plot_title, fontsize = 18)
-    if annotation:
-        for i, col in enumerate(columns):
-                anno = df[col] 
-                
-                # Annotate the statistics on the plot
-                plt.text(i, anno * 1.025, f'{anno:.0f}{unit}', horizontalalignment='center', size='large', color='black', fontsize = 14)
-    plt.gca().spines['top'].set_visible(False)
-    plt.gca().spines['right'].set_visible(False)
-    plt.gca().spines['left'].set_visible(False)
-    plt.gca().spines['bottom'].set_visible(False)
-    plt.show()
+    if dual_columns:
+
+        # Create the primary y-axis for the bar plot
+        ax1 = df[columns].plot(kind='bar', figsize=figsize)
+
+        # Adjust y-tick labels for primary y-axis
+        new_ticks = np.arange(yrange[0], yrange[1] + 1, yrange[2])  # Ensure max value is included
+        ax1.set_yticks(new_ticks)
+        tick_labels = [f"{int(tick)}" for tick in new_ticks[:-1]] + [f"{int(new_ticks[-1])}{unit}"]
+        ax1.set_yticklabels(tick_labels)
+        plt.xticks(rotation=0)  # Set x-ticks if df.index is not numeric
+
+        # Annotate the primary bars with values
+        if annotation:
+            for i, anno in enumerate(df[columns]):
+                    
+                    # Annotate the statistics on the plot
+                    plt.text(i, anno * 1.025, f'{anno:.0f}{unit}', horizontalalignment='center', size='large', color='black', fontsize = 14)
+
+        # Create the secondary y-axis for kWh/ft2
+        ax2 = ax1.twinx()
+        ax2.plot(df[columns].index, df[dual_columns], marker='', linestyle='')  # Plot as points
+        new_ticks = np.arange(round(yrange[0] * conversion_factor), round((yrange[1] + 1) * conversion_factor), round(yrange[2] * conversion_factor / 5) * 5)  # Ensure max value is included
+        ax2.set_yticks(new_ticks)
+        tick_labels = [f"{round(tick)}" for tick in new_ticks[:-1]] + [f"{round(new_ticks[-1])}{dual_unit}"]
+        ax2.set_yticklabels(tick_labels)
+
+        # General plot settings
+        ax1.tick_params(axis='y', which = 'major', length=10, width=2, labelsize=16)
+        ax2.tick_params(axis='y', which = 'major', length=10, width=2, labelsize=16)
+        ax1.tick_params(axis='x', labelsize=16)
+        ax2.tick_params(axis='x', labelsize=16)
+
+        ax1.set_xlabel(xlabel, fontsize=16)
+        ax1.set_title(plot_title, fontsize=18)
+
+        # Hide unwanted spines
+        ax1.spines['top'].set_visible(False)
+        ax1.spines['right'].set_visible(False)
+        ax1.spines['left'].set_visible(False)
+        ax1.spines['bottom'].set_visible(False)
+        ax2.spines['top'].set_visible(False)
+        ax2.spines['left'].set_visible(False)
+        ax2.spines['right'].set_visible(False)
+        ax2.spines['bottom'].set_visible(False)
+
+        # Show the plot
+        plt.show()
+
+    else:
+        df[columns].plot(kind='bar', figsize = figsize)
+        # Add units to y-tick labels
+        new_ticks = np.arange(yrange[0], yrange[1], yrange[2])  # Adjust the step value as needed
+        plt.gca().set_yticks(new_ticks)
+        tick_labels = [f"{int(tick)}" for tick in new_ticks[:-1]] + [f"{int(new_ticks[-1])}{unit}"]
+        plt.gca().set_yticklabels(tick_labels)
+        plt.gca().tick_params(axis='both', which = 'major', length=10, width=2, labelsize=16)
+        plt.xticks(rotation = 0)
+        plt.xlabel(xlabel)
+        plt.title(plot_title, fontsize = 18)
+        if annotation:
+            for i, anno in enumerate(df[columns]):
+                    
+                    # Annotate the statistics on the plot
+                    plt.text(i, anno * 1.025, f'{anno:.0f}{unit}', horizontalalignment='center', size='large', color='black', fontsize = 14)
+
+        plt.gca().spines['top'].set_visible(False)
+        plt.gca().spines['right'].set_visible(False)
+        plt.gca().spines['left'].set_visible(False)
+        plt.gca().spines['bottom'].set_visible(False)
+        plt.show()
