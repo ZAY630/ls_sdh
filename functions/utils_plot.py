@@ -181,7 +181,7 @@ def create_box_plot(df, columns, unit, axe, plot_title='', annotation = True, hi
                     median = df[col].median()   
                     
                     # Annotate the statistics on the plot
-                    axe.text(i, median * 1.025, f'{median:.0f}{unit}', horizontalalignment='center', size='large', color='black', fontsize = 18)
+                    axe.text(i, median * 1.025, f'{median:.0f}', horizontalalignment='center', size='large', color='black', fontsize = 18)
 
 
         # Map median values to colors
@@ -347,7 +347,11 @@ def create_bar_plot(df, columns, unit, plot_title='', annotation = True, xlabel 
         # Add units to y-tick labels
         new_ticks = np.arange(yrange[0], yrange[1], yrange[2])  # Adjust the step value as needed
         axe.set_yticks(new_ticks)
-        tick_labels = [f"{int(tick)}" for tick in new_ticks[:-1]] + [f"{int(new_ticks[-1])}{unit}"]
+        
+        if dual_unit:
+            tick_labels = [f"{int(tick)}" for tick in new_ticks[:-1]] + [f"{int(new_ticks[-1])}{unit}\n({round(new_ticks[-1] * conversion_factor)}{dual_unit})"]
+        else:
+            tick_labels = [f"{int(tick)}" for tick in new_ticks[:-1]] + [f"{int(new_ticks[-1])}{unit}"]
         axe.set_yticklabels(tick_labels)
         axe.tick_params(axis='both', which = 'major', length=10, width=2, labelsize=22)
         plt.xticks(rotation = 0)
@@ -357,7 +361,7 @@ def create_bar_plot(df, columns, unit, plot_title='', annotation = True, xlabel 
             for i, anno in enumerate(df[columns]):
                     
                     # Annotate the statistics on the plot
-                    plt.text(i, anno * 1.025, f'{anno:.0f}{unit}', horizontalalignment='center', size='large', color='black', fontsize = 22)
+                    plt.text(i, anno * 1.025, f'{anno:.0f}', horizontalalignment='center', size='large', color='black', fontsize = 22)
 
         axe.spines['top'].set_visible(False)
         axe.spines['right'].set_visible(False)
