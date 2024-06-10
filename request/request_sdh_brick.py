@@ -114,6 +114,7 @@ if __name__ == "__main__":
     df["bacnet_instance"] = df["bacnet_instance"].astype(int).astype(str)
     df['point_name'] = df['point_name'].str.replace('[^a-zA-Z0-9]', '_', regex=True)
     smap_client = SmapClient(url, key=keyStr)
+    # import pdb; pdb.set_trace()
     tags = smap_client.tags(where, asdict=True)
     paths = get_paths_from_tags(tags)
     points_to_download, data = get_data_from_smap(df, paths, smap_client, start, end)
