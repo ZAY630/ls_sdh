@@ -41,7 +41,7 @@ def clean_df(data, points_to_download, query):
     df_merge = df_merge.reset_index()
 
     # Save DataFrame to a CSV file
-    df_merge.to_csv('../ls_ctr/{}'.format(query), index=False)
+    df_merge.to_csv('../readfiles/ls_ctr/{}'.format(query), index=False)
 
 if __name__ == "__main__":
 

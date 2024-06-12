@@ -168,7 +168,7 @@ def download_df(df, name, uuid, parameter, filename):
     data.rename(columns = dict(zip(uuid, name)), inplace = True)
 
     # Save DataFrame to a CSV file
-    data.to_csv('../{}/{}'.format(parameter, filename), index=False)
+    data.to_csv('../readfiles/{}/{}'.format(parameter, filename), index=False)
 
 
 if __name__ == "__main__":
