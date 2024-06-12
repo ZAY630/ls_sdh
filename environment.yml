@@ -6,4 +6,7 @@ dependencies:
   - python=3.9
   - pandas==1.5.3
   - ipykernel
+  - matplotlib
+  - seaborn
+  - scikit-learn
 prefix: /Users/aoyuzou/opt/anaconda3/envs/ls_ctr
