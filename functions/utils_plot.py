@@ -213,7 +213,7 @@ def create_box_plot(df,
                     median = df[col].median()   
                     
                     # Annotate the statistics on the plot
-                    axe.text(i, median * 1.025, f'{median:.0f}', horizontalalignment='center', color='black', fontsize = 18)
+                    axe.text(i, median * 1.02, f'{median:.0f}', horizontalalignment='center', color='black', fontsize = 18)
 
 
         # Map median values to colors
@@ -282,7 +282,7 @@ def create_box_plot(df,
                     median = df[col].median()   
                     
                     # Annotate the statistics on the plot
-                    axe.text(i, median * 1.025, f'{median:.0f}', horizontalalignment='center', color='black', fontsize = 18)
+                    axe.text(i, median * 1.02, f'{median:.0f}', horizontalalignment='center', color='black', fontsize = 18)
 
 
         # Map median values to colors
@@ -344,7 +344,7 @@ def create_bar_plot(df,
             for i, anno in enumerate(df[columns]):
                     
                     # Annotate the statistics on the plot
-                    plt.text(i, anno * 1.025, f'{anno:.0f}', horizontalalignment='center', color='black', fontsize = 22)
+                    plt.text(i, anno * 1.02, f'{anno:.0f}', horizontalalignment='center', color='black', fontsize = 18)
 
         # Create the secondary y-axis for kWh/ft2
         ax2 = axe.twinx()
@@ -361,7 +361,7 @@ def create_bar_plot(df,
         ax2.tick_params(axis='x', labelsize=22)
 
         axe.set_xlabel(xlabel, fontsize=22)
-        axe.set_title(plot_title, fontsize=22)
+        axe.set_title(plot_title, fontsize=22, pad=20)
         axe.set_ylabel(ylabel, fontsize = 22)
 
         # Hide unwanted spines
@@ -392,12 +392,12 @@ def create_bar_plot(df,
         axe.tick_params(axis='x', which = 'major', labelsize=22)
         plt.xticks(rotation = 0)
         plt.xlabel(xlabel, fontsize = 22)
-        plt.title(plot_title, fontsize = 24)
+        plt.title(plot_title, fontsize = 24, pad=20)
         if annotation:
             for i, anno in enumerate(df[columns]):
                     
                     # Annotate the statistics on the plot
-                    plt.text(i, anno * 1.025, f'{anno:.0f}', horizontalalignment='center', color='black', fontsize = 22)
+                    plt.text(i, anno * 1.02, f'{anno:.0f}', horizontalalignment='center', color='black', fontsize = 18)
 
         axe.spines['top'].set_visible(False)
         axe.spines['right'].set_visible(False)
