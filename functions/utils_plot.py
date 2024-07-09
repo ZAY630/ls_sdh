@@ -36,6 +36,7 @@ def make_plot(df,
                 axe.plot(df['datetime'], df[column], lw = 4, label = legend[idx])
 
         plt.title(plot_title, fontsize = 24)
+        axe.legend(fontsize=18, loc='upper left')
         axe.set_ylim(yrange[0], yrange[1])
         new_ticks = np.arange(yrange[0], yrange[1], yrange[2])  # Generate 4 evenly spaced ticks within the current range
         axe.set_yticks(new_ticks)
@@ -49,14 +50,19 @@ def make_plot(df,
             axe.xaxis.set_major_locator(mdates.HourLocator(byhour=[0, 6, 12, 18]))
             axe.xaxis.set_major_formatter(mdates.DateFormatter('%-I %p'))  # '%I %p' for 12-hour clock format with AM/PM
             
-        # Create the secondary y-axis for kWh/ft2
+        # Create the secondary y-axis
         ax2 = axe.twinx()
         ax2.set_yticks(new_ticks)
-        secondary_y_tick_labels = [f'{round(y * conversion_factor)}' for y in new_ticks]
+        if dual_columns != "temp":
+            secondary_y_tick_labels = [f'{round(y * conversion_factor)}' for y in new_ticks]
+            
+        else:
+            secondary_y_tick_labels = [f'{round(y * 9/5 + 32)}' for y in new_ticks]
+ 
         ax2.set_yticklabels(secondary_y_tick_labels)
         ax2.set_ylim(yrange[0], yrange[1])
         ax2.set_ylabel(dual_ylabel, fontsize = 22)
-
+        
         # General plot settings
         axe.tick_params(axis='y', which = 'major', length=10, width=2, labelsize=22)
         ax2.tick_params(axis='y', which = 'major', length=10, width=2, labelsize=22)
@@ -93,7 +99,7 @@ def make_plot(df,
                 axe.plot(df['datetime'], df[column], lw = 4, label = legend[idx])
 
         axe.set_title(plot_title, fontsize = 24)
-        plt.legend(fontsize=18, loc='upper left')
+        axe.legend(fontsize=18, loc='upper left')
 
         # Add units to y-tick labels
         new_ticks = np.arange(yrange[0], yrange[1], yrange[2])  # Adjust the step value as needed
@@ -105,8 +111,8 @@ def make_plot(df,
         # Format date ticks
         # Set major locator to 6 hours and use a DateFormatter for the x-axis
         if date:
-            axe.xaxis.set_major_locator(mdates.HourLocator(byhour=[1, 7, 13, 19]))
-            axe.xaxis.set_major_formatter(mdates.DateFormatter('%-I %p', tz=df['datetime'].dt.tz))  # '%I %p' for 12-hour clock format with AM/PM
+            axe.xaxis.set_major_locator(mdates.HourLocator(byhour=[0, 6, 12, 18]))
+            axe.xaxis.set_major_formatter(mdates.DateFormatter('%-I %p'))  # '%I %p' for 12-hour clock format with AM/PM
 
         axe.tick_params(axis='both', labelsize=22)
         axe.tick_params(axis='y', which = 'major', length=10, width=2)
