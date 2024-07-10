@@ -7,7 +7,8 @@ import matplotlib.dates as mdates
 def make_plot(df, 
               axe, 
               columns = [], 
-              date = '', 
+              date = '',
+              tz = '', 
               yrange = [], 
               plot_title = '', 
               color = [], 
@@ -47,8 +48,8 @@ def make_plot(df,
         axe.set_xlabel(xlabel, fontsize = 22)
 
         if date:
-            axe.xaxis.set_major_locator(mdates.HourLocator(byhour=[0, 6, 12, 18]))
-            axe.xaxis.set_major_formatter(mdates.DateFormatter('%-I %p'))  # '%I %p' for 12-hour clock format with AM/PM
+            axe.xaxis.set_major_locator(mdates.HourLocator(byhour=[0, 6, 12, 18], tz = tz))
+            axe.xaxis.set_major_formatter(mdates.DateFormatter('%-I %p', tz = tz))  # '%I %p' for 12-hour clock format with AM/PM
             
         # Create the secondary y-axis
         ax2 = axe.twinx()
@@ -111,8 +112,8 @@ def make_plot(df,
         # Format date ticks
         # Set major locator to 6 hours and use a DateFormatter for the x-axis
         if date:
-            axe.xaxis.set_major_locator(mdates.HourLocator(byhour=[0, 6, 12, 18]))
-            axe.xaxis.set_major_formatter(mdates.DateFormatter('%-I %p'))  # '%I %p' for 12-hour clock format with AM/PM
+            axe.xaxis.set_major_locator(mdates.HourLocator(byhour=[0, 6, 12, 18], tz = tz))
+            axe.xaxis.set_major_formatter(mdates.DateFormatter('%-I %p', tz = tz))  # '%I %p' for 12-hour clock format with AM/PM
 
         axe.tick_params(axis='both', labelsize=22)
         axe.tick_params(axis='y', which = 'major', length=10, width=2)
@@ -186,7 +187,6 @@ def plot_hourly_heatmap(df,
 
 def create_box_plot(df, 
                     columns, 
-                    unit, 
                     axe, 
                     plot_title='', 
                     annotation = True, 
