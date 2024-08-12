@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.dates as mdates
+from matplotlib.ticker import MultipleLocator
 
 def make_plot(df, 
               axe, 
@@ -12,7 +13,6 @@ def make_plot(df,
               yrange = [], 
               plot_title = '', 
               color = [], 
-              hide_xticks = False, 
               xlabel = '', 
               ylabel = '',
               dual_columns = [], 
@@ -37,15 +37,10 @@ def make_plot(df,
                 axe.plot(df['datetime'], df[column], lw = 4, label = legend[idx])
 
         plt.title(plot_title, fontsize = 24)
-        axe.legend(fontsize=18, loc='upper left')
         axe.set_ylim(yrange[0], yrange[1])
         new_ticks = np.arange(yrange[0], yrange[1], yrange[2])  # Generate 4 evenly spaced ticks within the current range
         axe.set_yticks(new_ticks)
         axe.set_ylabel(ylabel, fontsize = 22)
-        axe.set_title(plot_title, fontsize = 24)
-        if hide_xticks:
-            axe.set_xticklabels([])
-        axe.set_xlabel(xlabel, fontsize = 22)
 
         if date:
             axe.xaxis.set_major_locator(mdates.HourLocator(byhour=[0, 6, 12, 18], tz = tz))
@@ -65,19 +60,10 @@ def make_plot(df,
         ax2.set_ylabel(dual_ylabel, fontsize = 22)
         
         # General plot settings
-        axe.tick_params(axis='y', which = 'major', length=10, width=2, labelsize=22)
         ax2.tick_params(axis='y', which = 'major', length=10, width=2, labelsize=22)
-        axe.tick_params(axis='x', labelsize=22)
         ax2.tick_params(axis='x', labelsize=22)
 
-        axe.set_xlabel(xlabel, fontsize=22)
-        axe.yaxis.grid(True, linestyle='-', color='lightgrey')
-
         # Hide unwanted spines
-        axe.spines['top'].set_visible(False)
-        axe.spines['right'].set_visible(False)
-        axe.spines['left'].set_visible(False)
-        axe.spines['bottom'].set_visible(False)
         ax2.spines['top'].set_visible(False)
         ax2.spines['left'].set_visible(False)
         ax2.spines['right'].set_visible(False)
@@ -99,8 +85,7 @@ def make_plot(df,
             for idx, column in enumerate(columns):
                 axe.plot(df['datetime'], df[column], lw = 4, label = legend[idx])
 
-        axe.set_title(plot_title, fontsize = 24)
-        axe.legend(fontsize=18, loc='upper left')
+        
 
         # Add units to y-tick labels
         new_ticks = np.arange(yrange[0], yrange[1], yrange[2])  # Adjust the step value as needed
@@ -115,13 +100,18 @@ def make_plot(df,
             axe.xaxis.set_major_locator(mdates.HourLocator(byhour=[0, 6, 12, 18], tz = tz))
             axe.xaxis.set_major_formatter(mdates.DateFormatter('%-I %p', tz = tz))  # '%I %p' for 12-hour clock format with AM/PM
 
-        axe.tick_params(axis='both', labelsize=22)
-        axe.tick_params(axis='y', which = 'major', length=10, width=2)
-        axe.spines['top'].set_visible(False)
-        axe.spines['right'].set_visible(False)
-        axe.spines['left'].set_visible(False)
-        axe.spines['bottom'].set_visible(False)
-        axe.yaxis.grid(True, linestyle='-', color='lightgrey')
+    axe.set_xlabel(xlabel, fontsize=22)
+    axe.yaxis.grid(True, linestyle='-', color='lightgrey')
+    
+    axe.set_title(plot_title, fontsize = 24)
+    axe.legend(fontsize=18, loc='upper left')
+    axe.tick_params(axis='both', labelsize=22)
+    axe.tick_params(axis='y', which = 'major', length=10, width=2)
+    axe.spines['top'].set_visible(False)
+    axe.spines['right'].set_visible(False)
+    axe.spines['left'].set_visible(False)
+    axe.spines['bottom'].set_visible(False)
+    axe.yaxis.grid(True, linestyle='-', color='lightgrey')
 
 
 def plot_hourly_heatmap(df, 
@@ -190,10 +180,10 @@ def create_box_plot(df,
                     axe, 
                     plot_title='', 
                     annotation = True, 
-                    hide_xticks = False, 
                     xlabel = '', 
                     ylabel = '',
                     yrange = [], 
+                    reduce_xlabel = False, 
                     color = [], 
                     type = False, 
                     dual_columns = [], 
@@ -236,11 +226,6 @@ def create_box_plot(df,
         new_ticks = np.arange(yrange[0], yrange[1], yrange[2])  # Generate 4 evenly spaced ticks within the current range
         axe.set_yticks(new_ticks)
         axe.set_ylabel(ylabel, fontsize = 22)
-        axe.set_title(plot_title, fontsize = 24)
-        if hide_xticks:
-            axe.set_xticklabels([])
-        axe.set_xlabel(xlabel, fontsize = 22)
-        axe.yaxis.grid(True, linestyle='-', color='lightgrey')
 
         # Create the secondary y-axis for kWh/ft2
         ax2 = axe.twinx()
@@ -251,23 +236,14 @@ def create_box_plot(df,
         ax2.set_ylabel(dual_ylabel, fontsize = 22)
 
         # General plot settings
-        axe.tick_params(axis='y', which = 'major', length=10, width=2, labelsize=22)
         ax2.tick_params(axis='y', which = 'major', length=10, width=2, labelsize=22)
-        axe.tick_params(axis='x', labelsize=22)
         ax2.tick_params(axis='x', labelsize=22)
 
-        axe.set_xlabel(xlabel, fontsize=22)
-
         # Hide unwanted spines
-        axe.spines['top'].set_visible(False)
-        axe.spines['right'].set_visible(False)
-        axe.spines['left'].set_visible(False)
-        axe.spines['bottom'].set_visible(False)
         ax2.spines['top'].set_visible(False)
         ax2.spines['left'].set_visible(False)
         ax2.spines['right'].set_visible(False)
         ax2.spines['bottom'].set_visible(False)
-        plt.setp(axe.collections, alpha=.5)
 
 
     else:
@@ -304,19 +280,23 @@ def create_box_plot(df,
         axe.set_ylim(yrange[0], yrange[1])
         new_ticks = np.arange(yrange[0], yrange[1], yrange[2])  # Generate 4 evenly spaced ticks within the current range
         axe.set_yticks(new_ticks)
-
         axe.set_ylabel(ylabel, fontsize = 22)
-        axe.set_title(plot_title, fontsize = 24)
-        if hide_xticks:
-            axe.set_xticklabels([])
-        axe.set_xlabel(xlabel, fontsize = 22)
-        axe.tick_params(axis='y', which = 'major', length=10, width=2, labelsize=22)
-        axe.tick_params(axis='x', labelsize=22)
 
-        axe.spines['top'].set_visible(False)
-        axe.spines['right'].set_visible(False)
-        axe.spines['left'].set_visible(False)
-        axe.spines['bottom'].set_visible(False)
+    plt.setp(axe.collections, alpha=.5)
+    axe.tick_params(axis='y', which = 'major', length=10, width=2, labelsize=22)
+    axe.tick_params(axis='x', labelsize=22)
+
+    axe.spines['top'].set_visible(False)
+    axe.spines['right'].set_visible(False)
+    axe.spines['left'].set_visible(False)
+    axe.spines['bottom'].set_visible(False)
+
+    axe.set_title(plot_title, fontsize = 24)
+    axe.yaxis.grid(True, linestyle='-', color='lightgrey')
+    if reduce_xlabel:
+        axe.xaxis.set_major_locator(MultipleLocator(6))
+    axe.set_xlabel(xlabel, fontsize=22)
+        
 
 def create_bar_plot(df, 
                     columns, 
@@ -335,15 +315,15 @@ def create_bar_plot(df,
 
         # Create the primary y-axis for the bar plot
         if color:
-            axe = df[columns].plot(kind='bar', figsize=figsize, color=color)
+            axe = df[columns].plot(kind='bar', figsize=figsize, color=color, width = 0.8)
         else:
-            axe = df[columns].plot(kind='bar', figsize=figsize)
+            axe = df[columns].plot(kind='bar', figsize=figsize, width = 0.8)
 
         # Adjust y-tick labels for primary y-axis
         new_ticks = np.arange(yrange[0], yrange[1], yrange[2])  # Ensure max value is included
         axe.set_yticks(new_ticks)
-        plt.xticks(rotation=0)  # Set x-ticks if df.index is not numeric
         axe.set_ylim(yrange[0], yrange[1])
+        plt.xticks(rotation=0) 
 
         # Annotate the primary bars with values
         if annotation:
@@ -361,53 +341,39 @@ def create_bar_plot(df,
         ax2.set_ylabel(dual_ylabel, fontsize = 22)
 
         # General plot settings
-        axe.tick_params(axis='y', which = 'major', length=10, width=2, labelsize=22)
         ax2.tick_params(axis='y', which = 'major', length=10, width=2, labelsize=22)
-        axe.tick_params(axis='x', labelsize=22)
         ax2.tick_params(axis='x', labelsize=22)
 
-        axe.set_xlabel(xlabel, fontsize=22)
-        axe.set_title(plot_title, fontsize=22, pad=20)
         axe.set_ylabel(ylabel, fontsize = 22)
 
         # Hide unwanted spines
-        axe.spines['top'].set_visible(False)
-        axe.spines['right'].set_visible(False)
-        axe.spines['left'].set_visible(False)
-        axe.spines['bottom'].set_visible(False)
         ax2.spines['top'].set_visible(False)
         ax2.spines['left'].set_visible(False)
         ax2.spines['right'].set_visible(False)
         ax2.spines['bottom'].set_visible(False)
 
-        axe.yaxis.grid(True, linestyle='-', color='lightgrey')
-
-        # Show the plot
-        plt.show()
-
     else:
         if color:
-            axe = df[columns].plot(kind='bar', figsize=figsize, color=color)
+            axe = df[columns].plot(kind='bar', figsize=figsize, color=color, width = 0.8)
         else:
-            axe = df[columns].plot(kind='bar', figsize=figsize)
+            axe = df[columns].plot(kind='bar', figsize=figsize, width = 0.8)
         # Add units to y-tick labels
         new_ticks = np.arange(yrange[0], yrange[1], yrange[2])  # Adjust the step value as needed
         axe.set_yticks(new_ticks)
         axe.set_ylabel(ylabel, fontsize = 22)
-        axe.tick_params(axis='y', which = 'major', length=10, width=2, labelsize=22)
-        axe.tick_params(axis='x', which = 'major', labelsize=22)
-        plt.xticks(rotation = 0)
-        plt.xlabel(xlabel, fontsize = 22)
-        plt.title(plot_title, fontsize = 24, pad=20)
         if annotation:
             for i, anno in enumerate(df[columns]):
                     
                     # Annotate the statistics on the plot
                     plt.text(i, anno * 1.02, f'{anno:.0f}', horizontalalignment='center', color='black', fontsize = 18)
 
-        axe.spines['top'].set_visible(False)
-        axe.spines['right'].set_visible(False)
-        axe.spines['left'].set_visible(False)
-        axe.spines['bottom'].set_visible(False)
-        axe.yaxis.grid(True, linestyle='-', color='lightgrey')
-        plt.show()
+    axe.yaxis.grid(True, linestyle='-', color='lightgrey')
+    axe.tick_params(axis='y', which = 'major', length=10, width=2, labelsize=22)
+    axe.tick_params(axis='x', which = 'major', labelsize=22)
+    axe.set_xlabel(xlabel, fontsize=22)
+    axe.set_title(plot_title, fontsize=22, pad=20)
+    axe.spines['top'].set_visible(False)
+    axe.spines['right'].set_visible(False)
+    axe.spines['left'].set_visible(False)
+    axe.spines['bottom'].set_visible(False)
+    plt.show()
