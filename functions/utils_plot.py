@@ -26,8 +26,10 @@ def make_plot(df,
         if columns == []:
             columns = df.columns[1:]
 
-        if date != '':
+        if date:
             df = df[df['datetime'].dt.date == pd.to_datetime(date)]
+            axe.xaxis.set_major_locator(mdates.HourLocator(byhour=range(0, 24, 6), tz = tz))
+            axe.xaxis.set_major_formatter(mdates.DateFormatter('%-I %p', tz = tz))
 
         if color:
             for idx, column in enumerate(columns):
@@ -36,22 +38,17 @@ def make_plot(df,
             for idx, column in enumerate(columns):
                 axe.plot(df['datetime'], df[column], lw = 4, label = legend[idx])
 
-        plt.title(plot_title, fontsize = 24)
         axe.set_ylim(yrange[0], yrange[1])
-        new_ticks = np.arange(yrange[0], yrange[1], yrange[2])  # Generate 4 evenly spaced ticks within the current range
+        new_ticks = np.arange(yrange[0], yrange[1], yrange[2])
         axe.set_yticks(new_ticks)
-        axe.set_ylabel(ylabel, fontsize = 22)
-
-        if date:
-            axe.xaxis.set_major_locator(mdates.HourLocator(byhour=[0, 6, 12, 18], tz = tz))
-            axe.xaxis.set_major_formatter(mdates.DateFormatter('%-I %p', tz = tz))  # '%I %p' for 12-hour clock format with AM/PM
-            
-        # Create the secondary y-axis
+        axe.set_ylabel(ylabel, fontsize = 22)   
+        
+        # set dual column
         ax2 = axe.twinx()
         ax2.set_yticks(new_ticks)
+
         if dual_columns != "temp":
-            secondary_y_tick_labels = [f'{round(y * conversion_factor)}' for y in new_ticks]
-            
+            secondary_y_tick_labels = [f'{round(y * conversion_factor)}' for y in new_ticks]    
         else:
             secondary_y_tick_labels = [f'{round(y * 9/5 + 32)}' for y in new_ticks]
  
@@ -59,11 +56,9 @@ def make_plot(df,
         ax2.set_ylim(yrange[0], yrange[1])
         ax2.set_ylabel(dual_ylabel, fontsize = 22)
         
-        # General plot settings
         ax2.tick_params(axis='y', which = 'major', length=10, width=2, labelsize=22)
         ax2.tick_params(axis='x', labelsize=22)
 
-        # Hide unwanted spines
         ax2.spines['top'].set_visible(False)
         ax2.spines['left'].set_visible(False)
         ax2.spines['right'].set_visible(False)
@@ -74,10 +69,11 @@ def make_plot(df,
         if columns == []:
             columns = df.columns[1:]
 
-        if date != '':
+        if date:
             df = df[df['datetime'].dt.date == pd.to_datetime(date)]
+            axe.xaxis.set_major_locator(mdates.HourLocator(byhour=range(0, 24, 6), tz = tz))
+            axe.xaxis.set_major_formatter(mdates.DateFormatter('%-I %p', tz = tz)) 
 
-        # Plotting each column against the 'datetime'
         if color:
             for idx, column in enumerate(columns):
                 axe.plot(df['datetime'], df[column], lw = 4, color=color[idx], label = legend[idx])
@@ -85,26 +81,14 @@ def make_plot(df,
             for idx, column in enumerate(columns):
                 axe.plot(df['datetime'], df[column], lw = 4, label = legend[idx])
 
-        
-
-        # Add units to y-tick labels
-        new_ticks = np.arange(yrange[0], yrange[1], yrange[2])  # Adjust the step value as needed
-
-        # Set the new ticks
+        new_ticks = np.arange(yrange[0], yrange[1], yrange[2]) 
         axe.set_yticks(new_ticks)
         axe.set_ylabel(ylabel, fontsize=22)
-
-        # Format date ticks
-        # Set major locator to 6 hours and use a DateFormatter for the x-axis
-        if date:
-            axe.xaxis.set_major_locator(mdates.HourLocator(byhour=[0, 6, 12, 18], tz = tz))
-            axe.xaxis.set_major_formatter(mdates.DateFormatter('%-I %p', tz = tz))  # '%I %p' for 12-hour clock format with AM/PM
-
-    axe.set_xlabel(xlabel, fontsize=22)
-    axe.yaxis.grid(True, linestyle='-', color='lightgrey')
     
+    axe.set_xlabel(xlabel, fontsize=22)
+
     axe.set_title(plot_title, fontsize = 24)
-    axe.legend(fontsize=18, loc='upper left')
+    axe.legend(fontsize=18, loc='best', frameon=False)
     axe.tick_params(axis='both', labelsize=22)
     axe.tick_params(axis='y', which = 'major', length=10, width=2)
     axe.spines['top'].set_visible(False)
@@ -122,51 +106,41 @@ def plot_hourly_heatmap(df,
                         cbar_label = [], 
                         figsize = ()):
     
-   # Ensure datetime is the correct type for processing
-    df['datetime'] = pd.to_datetime(df['datetime'])  # Convert if not already in datetime format
-    
-    # Set datetime as the index
+    df['datetime'] = pd.to_datetime(df['datetime']) 
     df.set_index('datetime', inplace=True)
     
-    # Resample data into hourly bins and take the mean of each bin
     hourly_data = df[columns].resample('H').mean()
     
-    # Prepare data for heatmap (days as rows, hours as columns)
     heatmap_data = hourly_data.pivot_table(index=hourly_data.index.date, 
                                            columns=hourly_data.index.hour, 
                                            values=columns, 
                                            aggfunc='mean')
 
-    # Plot heatmap
     plt.figure(figsize=figsize)
     heatmap = sns.heatmap(heatmap_data, cmap='viridis_r', linewidths=0, cbar_kws={'orientation': 'horizontal', 'pad': 0.1, 'shrink': 0.75})
 
-    # Modify color bar label, adding units
     cbar = heatmap.collections[0].colorbar
-    cbar.set_label(annotation, labelpad=-70, fontsize=22)
+    cbar.set_label(annotation, labelpad=-75, fontsize=22)
     cbar.ax.tick_params(labelsize=22)
 
     if cbar_ticks:
         cbar.set_ticks(cbar_ticks) 
         cbar.set_ticklabels(cbar_label) 
 
-    # Identify the positions and labels for the first day of each month
     month_positions = []
     month_labels = []
     for i, date_str in enumerate(heatmap_data.index):
         date = pd.to_datetime(date_str)
-        if date.day == 1:  # Check if it's the first day of the month
+        if date.day == 1: 
             month_positions.append(i)
             month_labels.append(date.strftime('%b'))
 
-    # Set y-tick positions and labels for the first day of each month
-    heatmap.set_yticks(np.array(month_positions) + 0.5)  # +0.5 centers labels
-    heatmap.set_yticklabels(month_labels, rotation=0)  # Set labels with no rotation
+    heatmap.set_yticks(np.array(month_positions) + 0.5)
+    heatmap.set_yticklabels(month_labels, rotation=0)
 
-    # Set additional labels and titles
-    hours = ['12 AM', '6 AM', '12 PM', '6 PM']
-    hour_positions = [0, 6, 12, 18]  # Corresponding positions in 24-hour format
-    plt.xticks(hour_positions, labels=hours, rotation = 0)  # Adjust tick positions and labels
+    hours = ['12 AM', '6 AM', '12 PM', '6 PM', "12 AM"]
+    hour_positions = [0, 6, 12, 18, 24]
+    plt.xticks(hour_positions, labels=hours, rotation = 0)
     plt.title(plot_title, fontsize=24)
     plt.xticks(fontsize=22)
     plt.yticks(fontsize=22)
@@ -190,13 +164,11 @@ def create_box_plot(df,
                     dual_ylabel = '', 
                     conversion_factor = 1):
 
-    # Calculate and print mean and median on the plot
     if dual_columns:
         if annotation == True:
             if type:
                 medians = df.groupby([columns + ['type']])[columns].median().reset_index()
                 for _, row in medians.iterrows():
-                    # Adjust the text position (x, y) and alignment as necessary
                     axe.text(row['hour'] - 0.15 if row['type'] == 'high' else row['hour'] + 0.15, 
                             median * 1.01, 
                             f'{median:.0f}', 
@@ -204,18 +176,12 @@ def create_box_plot(df,
 
             else:
                 for i, col in enumerate(columns):
-                    # Calculate statistics
-                    mean = df[col].mean()
                     median = df[col].median()   
-                    
-                    # Annotate the statistics on the plot
                     axe.text(i, median * 1.02, f'{median:.0f}', horizontalalignment='center', color='black', fontsize = 18)
 
-
-        # Map median values to colors
         if type:
             axe = sns.boxplot(x='hour', y=columns[0], hue=type, data=df, width=0.75, ax=axe, showfliers=False, palette=['#d8e219', '#253494'], boxprops=dict(alpha=.7))
-            plt.legend(fontsize=22, loc='lower right')
+            plt.legend(fontsize=22, loc='best', frameon=False)
         elif color:
             axe = sns.boxplot(data=df[columns], width=0.5, ax=axe, showfliers=False, palette=color)
         else:
@@ -223,11 +189,10 @@ def create_box_plot(df,
 
 
         axe.set_ylim(yrange[0], yrange[1])
-        new_ticks = np.arange(yrange[0], yrange[1], yrange[2])  # Generate 4 evenly spaced ticks within the current range
+        new_ticks = np.arange(yrange[0], yrange[1], yrange[2]) 
         axe.set_yticks(new_ticks)
         axe.set_ylabel(ylabel, fontsize = 22)
 
-        # Create the secondary y-axis for kWh/ft2
         ax2 = axe.twinx()
         ax2.set_yticks(new_ticks)
         secondary_y_tick_labels = [f'{round(y * conversion_factor)}' for y in new_ticks]
@@ -235,11 +200,9 @@ def create_box_plot(df,
         ax2.set_ylim(yrange[0], yrange[1])
         ax2.set_ylabel(dual_ylabel, fontsize = 22)
 
-        # General plot settings
         ax2.tick_params(axis='y', which = 'major', length=10, width=2, labelsize=22)
         ax2.tick_params(axis='x', labelsize=22)
 
-        # Hide unwanted spines
         ax2.spines['top'].set_visible(False)
         ax2.spines['left'].set_visible(False)
         ax2.spines['right'].set_visible(False)
@@ -251,7 +214,6 @@ def create_box_plot(df,
             if type:
                 medians = df.groupby([columns + ['type']])[columns].median().reset_index()
                 for _, row in medians.iterrows():
-                    # Adjust the text position (x, y) and alignment as necessary
                     axe.text(row['hour'] - 0.15 if row['type'] == 'high' else row['hour'] + 0.15, 
                             median * 1.01, 
                             f'{median:.0f}', 
@@ -259,18 +221,12 @@ def create_box_plot(df,
 
             else:
                 for i, col in enumerate(columns):
-                    # Calculate statistics
-                    mean = df[col].mean()
                     median = df[col].median()   
-                    
-                    # Annotate the statistics on the plot
                     axe.text(i, median * 1.02, f'{median:.0f}', horizontalalignment='center', color='black', fontsize = 18)
 
-
-        # Map median values to colors
         if type:
             sns.boxplot(x='hour', y=columns[0], hue=type, data=df, width=0.75, ax=axe, showfliers=False, palette=['#d8e219', '#253494'], boxprops=dict(alpha=.7))
-            plt.legend(fontsize=22, loc='lower right')
+            plt.legend(fontsize=22, loc='best', frameon=False)
         elif color:
             sns.boxplot(data=df[columns], width=0.5, ax=axe, showfliers=False, palette=color)
         else:
@@ -278,11 +234,10 @@ def create_box_plot(df,
 
 
         axe.set_ylim(yrange[0], yrange[1])
-        new_ticks = np.arange(yrange[0], yrange[1], yrange[2])  # Generate 4 evenly spaced ticks within the current range
+        new_ticks = np.arange(yrange[0], yrange[1], yrange[2])
         axe.set_yticks(new_ticks)
         axe.set_ylabel(ylabel, fontsize = 22)
 
-    plt.setp(axe.collections, alpha=.5)
     axe.tick_params(axis='y', which = 'major', length=10, width=2, labelsize=22)
     axe.tick_params(axis='x', labelsize=22)
 
@@ -313,26 +268,20 @@ def create_bar_plot(df,
 
     if dual_columns:
 
-        # Create the primary y-axis for the bar plot
         if color:
             axe = df[columns].plot(kind='bar', figsize=figsize, color=color, width = 0.8)
         else:
             axe = df[columns].plot(kind='bar', figsize=figsize, width = 0.8)
 
-        # Adjust y-tick labels for primary y-axis
-        new_ticks = np.arange(yrange[0], yrange[1], yrange[2])  # Ensure max value is included
+        new_ticks = np.arange(yrange[0], yrange[1], yrange[2])
         axe.set_yticks(new_ticks)
         axe.set_ylim(yrange[0], yrange[1])
         plt.xticks(rotation=0) 
 
-        # Annotate the primary bars with values
         if annotation:
             for i, anno in enumerate(df[columns]):
-                    
-                    # Annotate the statistics on the plot
                     plt.text(i, anno * 1.02, f'{anno:.0f}', horizontalalignment='center', color='black', fontsize = 18)
 
-        # Create the secondary y-axis for kWh/ft2
         ax2 = axe.twinx()
         ax2.set_yticks(new_ticks)
         secondary_y_tick_labels = [f'{round(y * conversion_factor)}' for y in new_ticks]
@@ -340,13 +289,11 @@ def create_bar_plot(df,
         ax2.set_ylim(yrange[0], yrange[1])
         ax2.set_ylabel(dual_ylabel, fontsize = 22)
 
-        # General plot settings
         ax2.tick_params(axis='y', which = 'major', length=10, width=2, labelsize=22)
         ax2.tick_params(axis='x', labelsize=22)
 
         axe.set_ylabel(ylabel, fontsize = 22)
 
-        # Hide unwanted spines
         ax2.spines['top'].set_visible(False)
         ax2.spines['left'].set_visible(False)
         ax2.spines['right'].set_visible(False)
@@ -357,14 +304,12 @@ def create_bar_plot(df,
             axe = df[columns].plot(kind='bar', figsize=figsize, color=color, width = 0.8)
         else:
             axe = df[columns].plot(kind='bar', figsize=figsize, width = 0.8)
-        # Add units to y-tick labels
-        new_ticks = np.arange(yrange[0], yrange[1], yrange[2])  # Adjust the step value as needed
+        new_ticks = np.arange(yrange[0], yrange[1], yrange[2]) 
+        plt.xticks(rotation=0)
         axe.set_yticks(new_ticks)
         axe.set_ylabel(ylabel, fontsize = 22)
         if annotation:
             for i, anno in enumerate(df[columns]):
-                    
-                    # Annotate the statistics on the plot
                     plt.text(i, anno * 1.02, f'{anno:.0f}', horizontalalignment='center', color='black', fontsize = 18)
 
     axe.yaxis.grid(True, linestyle='-', color='lightgrey')
